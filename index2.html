@@ -1,0 +1,1692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .quiz-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+            overflow: hidden;
+        }
+        .quiz-header {
+            padding: 20px;
+            background-color: #4a6fa5;
+            color: white;
+        }
+        .quiz-header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+        .quiz-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .quiz-body {
+            padding: 20px;
+        }
+        #question {
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            color: #333;
+        }
+        .answer-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .answer-option {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .answer-option:hover {
+            border-color: #4a6fa5;
+        }
+        .answer-option.selected {
+            border-color: #4a6fa5;
+            background-color: #f0f7ff;
+        }
+        .answer-option.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+        .answer-option.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+        .answer-option img {
+            max-width: 100%;
+            max-height: 120px;
+            margin-bottom: 8px;
+            border-radius: 5px;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .btn {
+            background-color: #4a6fa5;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #3a5a80;
+        }
+        .btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .feedback {
+            margin: 15px 0;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .correct-feedback {
+            background-color: #e8f5e9;
+            color: #4CAF50;
+        }
+        .incorrect-feedback {
+            background-color: #ffebee;
+            color: #f44336;
+        }
+        .hide {
+            display: none;
+        }
+        .progress-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .progress-bar {
+            height: 10px;
+            background-color: #4a6fa5;
+            border-radius: 5px;
+            transition: width 0.3s;
+        }
+        .review-info {
+            background-color: #fff3e0;
+            color: #e65100;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .hint-container {
+            margin: 15px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+        .hint-btn {
+            background-color: #4a6fa5;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        .hint-content {
+            display: none;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 5px;
+            border-left: 3px solid #4a6fa5;
+        }
+        .hint-content img {
+            max-width: 100%;
+            max-height: 150px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <div class="quiz-header">
+            <h1 id="quiz-title">Advanced Knowledge Quiz</h1>
+            <div class="quiz-info">
+                <span id="question-counter">Question 1 of 10</span>
+                <span id="score">Score: 0</span>
+            </div>
+            <div class="progress-container">
+                <div id="progress-bar" class="progress-bar" style="width: 0%"></div>
+            </div>
+        </div>
+        
+        <div class="quiz-body">
+            <div id="review-info" class="review-info hide">
+                Review Mode: Answer these questions correctly to complete the quiz
+            </div>
+            <div id="question-container">
+                <div id="question-image-container" class="question-image"></div>
+                <h2 id="question">Loading questions...</h2>
+                <div id="hint-container" class="hint-container hide">
+                    <button id="hint-btn" class="hint-btn">Show Formula/Hint</button>
+                    <div id="hint-content" class="hint-content"></div>
+                </div>
+                <div id="feedback" class="feedback hide"></div>
+                <div id="answer-container" class="answer-container">
+                    <!-- Answer options will be added here by JavaScript -->
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button id="start-btn" class="btn">Start Quiz</button>
+                <button id="submit-btn" class="btn hide">Submit Answer</button>
+                <button id="next-btn" class="btn hide">Next Question</button>
+                <button id="restart-btn" class="btn hide">Restart Quiz</button>
+                <button id="review-btn" class="btn hide">Review Mistakes</button>
+                <button id="try-again-btn" class="btn hide">Try Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const questionElement = document.getElementById("question");
+        const answerContainer = document.getElementById("answer-container");
+        const nextButton = document.getElementById("next-btn");
+        const startButton = document.getElementById("start-btn");
+        const submitButton = document.getElementById("submit-btn");
+        const restartButton = document.getElementById("restart-btn");
+        const reviewButton = document.getElementById("review-btn");
+        const tryAgainButton = document.getElementById("try-again-btn");
+        const questionCounter = document.getElementById("question-counter");
+        const scoreElement = document.getElementById("score");
+        const questionImageContainer = document.getElementById("question-image-container");
+        const feedbackElement = document.getElementById("feedback");
+        const progressBar = document.getElementById("progress-bar");
+        const reviewInfo = document.getElementById("review-info");
+        const hintContainer = document.getElementById("hint-container");
+        const hintBtn = document.getElementById("hint-btn");
+        const hintContent = document.getElementById("hint-content");
+
+        // Quiz state variables
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let quizStarted = false;
+        let reviewMode = false;
+        let incorrectQuestions = [];
+        let incorrectQuestionIndices = [];
+        let selectedAnswers = [];
+        let reviewAttempts = {};
+        let shuffledQuestions = [];
+        let answerOrderMappings = [];
+
+        const originalQuestions = [
+            {
+                question: "Cât este impedanța complexă a unui condensator cu capacitatea de 1 µF la frecvența de 1 MHz?",
+                imageUrl: "",
+                answers: [
+                    { text: "a. -j/(2π)", correct: true, imageUrl: "" },
+                    { text: "b. Niciun răspuns corect", correct: false, imageUrl: "" },
+                    { text: "c. -j", correct: false, imageUrl: "" },
+                    { text: "d. 0", correct: false, imageUrl: "" },
+                    { text: "e. j2π", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Formula impedanței complexe a condensatorului: Z_C = 1/(jωC) = -j/(ωC), unde ω = 2πf"
+            },
+            {
+                question: "Fie o porțiune de circuit. Cât este valoarea tensiunii U la bornele acestei laturi?",
+                imageUrl: "./img/11.png",
+                answers: [
+                    { text: "a. Niciun răspuns corect", correct: false, imageUrl: "" },
+                    { text: "b. 100 V", correct: false, imageUrl: "" },
+                    { text: "c. 20 V", correct: false, imageUrl: "" },
+                    { text: "d. 140 V", correct: true, imageUrl: "" },
+                    { text: "e. 0 V", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Folosește legea lui Kirchhoff pentru tensiuni: suma algebrică a tensiunilor într-o buclă închisă este zero."
+            },
+            {
+                question: "Aliați valorile curentilor I1, I2, I3 din schema alăturată:",
+                imageUrl: "./img/21.png",
+                answers: [
+                    { text: "a. 3A, 1A, 0A", correct: false, imageUrl: "" },
+                    { text: "b. 3A, -1A, 0A", correct: true, imageUrl: "" },
+                    { text: "c. Niciun raspuns corect.", correct: false, imageUrl: "" },
+                    { text: "d. 2A, 0A, -3A", correct: false, imageUrl: "" },
+                    { text: "e. 1A, -1A, 2A", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Aplică legile lui Kirchhoff: Legea nodurilor (suma curenților care intră într-un nod = suma celor care ies) și Legea ochiurilor."
+            },
+            {
+                question: "Care este valoarea efectivă a curentului în cele trei cazuri?",
+                imageUrl: "./img/3.png",
+                answers: [
+                    { text: "a. Niciun răspuns corect.", correct: false, imageUrl: "" },
+                    { text: "b. (1) 4A, (2) ∞A, (3) 0A", correct: false, imageUrl: "" },
+                    { text: "c. (1) 4A, (2) 9mA, (3) 3μA", correct: false, imageUrl: "" },
+                    { text: "d. (1) 4A, (2) 14,32A, (3) 0,754A", correct: true, imageUrl: "" },
+                    { text: "e. (1) 4A, (2) 0A, (3) 0A", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Valoarea efectivă pentru semnale periodice: I_eff = √(1/T ∫i²(t)dt). Pentru semnal sinusoidal: I_eff = I_max/√2"
+            },
+            {
+                question: "Fie un circuit RC serie cu tensiunile efective UR = 12V și UC = 5V. Cât este valoarea efectivă a tensiunii de alimentare a circuitului?",
+                imageUrl: "./img/4.png",
+                answers: [
+                    { text: "a. Niciun răspuns corect.", correct: false, imageUrl: "" },
+                    { text: "b. 13V", correct: true, imageUrl: "" },
+                    { text: "c. 12V", correct: false, imageUrl: "" },
+                    { text: "d. 7V", correct: false, imageUrl: "" },
+                    { text: "e. 17V", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "În circuit RC serie, tensiunile pe R și C sunt defazate cu 90°. Tensiunea totală se calculează cu formula: U = √(UR² + UC²)"
+            },
+            {
+                question: "În circuitul din figura de mai jos, la momentul t=0, contactul K se mută de pe borna (a) pe borna (b). Aflați care este valoarea tensiunii pe condensator (u<sub>C</sub>) la momentul t=75µs.",
+                imageUrl: "./img/5.png",
+                answers: [
+                    { text: "a. Niciun răspuns corect.", correct: false, imageUrl: "" },
+                    { text: "b. -3V", correct: false, imageUrl: "" },
+                    { text: "c. 1,08V", correct: false, imageUrl: "" },
+                    { text: "d. 1,41V", correct: true, imageUrl: "" },
+                    { text: "e. 0V", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: false,
+                hint: "Folosește formula de încărcare/descărcare a condensatorului: u_C(t) = U_final + (U_initial - U_final)e^(-t/τ), unde τ = RC"
+            },
+            {
+                question: "Care este semnalul sinusoidal corespunzător imaginii în complex I = 10j?",
+                imageUrl: "",
+                answers: [
+                    { text: "a. i(t) = 10j·sin(ωt) A", correct: false, imageUrl: "" },
+                    { text: "b. i(t) = 10√2·sin(ωt) A", correct: false, imageUrl: "" },
+                    { text: "c. Niciun răspuns corect", correct: false, imageUrl: "" },
+                    { text: "d. i(t) = 10·sin(ωt + π/2) A", correct: false, imageUrl: "" },
+                    { text: "e. i(t) = 10√2·sin(ωt + π/2) A", correct: true, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Reprezentarea în complex a unui semnal sinusoidal: i(t) = I_max·sin(ωt + φ) ↔ I = (I_max/√2)·e^(jφ). Valoarea 10j corespunde unei amplitudini de 10√2 și unui defazaj de π/2."
+            },
+            {
+                question: "Dacă imaginea Laplace a unei tensiuni este U(s) = 1/(s + 2), atunci expresia tensiunii u(t) va fi:",
+                imageUrl: "",
+                answers: [
+                    { text: "", correct: true, imageUrl: "./img/61.png" },
+                    { text: "b. Niciun răspuns corect.", correct: false, imageUrl: "" },
+                    { text: "", correct: false, imageUrl: "./img/62.png" },
+                    { text: "d. 1/(t + 2)", correct: false, imageUrl: "" },
+                    { text: "e. sin(2t)", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Transformata Laplace inversă a funcției 1/(s + a) este e^(-at). Aplicând această proprietate, obținem soluția corectă."
+            },
+            {
+                question: "Fie o sursă de tensiune cu valoarea u(t) = 10 + 12sin(ωt) + 4√2sin(2ωt + π/2) V și parcursă în sens pozitiv de curentul i(t) = 2 + √2sin(2ωt + π/2) A. Cât este puterea activă debitată de sursă?",
+                imageUrl: "",
+                answers: [
+                    { text: "a. 24 W", correct: true, imageUrl: "" },
+                    { text: "b. 36 W", correct: false, imageUrl: "" },
+                    { text: "c. 20 W", correct: false, imageUrl: "" },
+                    { text: "d. Niciun răspuns corect.", correct: false, imageUrl: "" },
+                    { text: "e. 0 W", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Puterea activă se calculează doar pentru armonicile comune din tensiune și curent. Formula: P = U₀I₀ + Σ(UₙIₙcosφₙ)/2 pentru n ≥ 1."
+            },
+            {
+                question: "Știind că toate rezistoarele și sursele de tensiune din circuit sunt identice (R = 4Ω și E = 8V), aflați valoarea curentului prin R.",
+                imageUrl: "./img/7.png",
+                answers: [
+                    { text: "a. 6A", correct: false, imageUrl: "" },
+                    { text: "b. 0A", correct: false, imageUrl: "" },
+                    { text: "c. Niciun răspuns corect.", correct: false, imageUrl: "" },
+                    { text: "d. 4A", correct: true, imageUrl: "" },
+                    { text: "e. 2A", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Analiza circuitului: aplică metoda potențialelor nodale sau teoremele lui Kirchhoff. Simetria circuitului poate simplifica calculul."
+            },
+            {
+                question: "Dacă o bobină cu inductivitatea L = 0.2H este parcursă de curentul i(t) = 10√2·sin(ωt) A, ω = 100 rad/s, cât este tensiunea la bornele ei?",
+                imageUrl: "",
+                answers: [
+                    { text: "a. Niciun răspuns corect.", correct: false, imageUrl: "" },
+                    { text: "b. u(t) = 200√2·sin(ωt + π/2) V", correct: true, imageUrl: "" },
+                    { text: "c. u(t) = 200√2·sin(ωt) V", correct: false, imageUrl: "" },
+                    { text: "d. u(t) = 0 V", correct: false, imageUrl: "" },
+                    { text: "e. u(t) = 2√2·sin(ωt) V", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Tensiunea la bornele bobinei: u(t) = L·di/dt. În regim sinusoidal, tensiunea este defazată cu π/2 înaintea curentului."
+            },
+            {
+                question: "Rezistorul de 120Ω din schema circuitului de mai jos consumă o putere de 30W. Care este valoarea tensiunii sursei de alimentare (E)?",
+                imageUrl: "./img/8.png",
+                answers: [
+                    { text: "a. 45V", correct: false, imageUrl: "" },
+                    { text: "b. 68V", correct: false, imageUrl: "" },
+                    { text: "c. 60V", correct: false, imageUrl: "" },
+                    { text: "d. 75V", correct: true, imageUrl: "" },
+                    { text: "e. Niciun răspuns.", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Folosește formula puterii P = U²/R pentru a afla tensiunea pe rezistor, apoi aplică divizorul de tensiune pentru a calcula tensiunea sursei."
+            },
+            {
+                question: "Ce valori au Ee și Re în circuitul dat?",
+                imageUrl: "./img/9.png",
+                answers: [
+                    { text: "a. 8V și 1Ω", correct: true, imageUrl: "" },
+                    { text: "b. 16V și 1Ω", correct: false, imageUrl: "" },
+                    { text: "c. Niciun răspuns corect.", correct: false, imageUrl: "" },
+                    { text: "d. 22V și 10Ω", correct: false, imageUrl: "" },
+                    { text: "e. 22V și 1Ω", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Pentru a calcula tensiunea echivalentă Thevenin (Ee), determină tensiunea în gol. Pentru rezistența echivalentă (Re), anulează sursele și calculează rezistența între borne."
+            },
+            {
+                question: "Ce reprezintă condiţiile iniţiale în regim tranzitoriu?",
+                imageUrl: "",
+                answers: [
+                    { text: "a. Valorile surselor de tensiune și curent", correct: false, imageUrl: "" },
+                    { text: "b. Valorile surselor de tensiune", correct: false, imageUrl: "" },
+                    { text: "c. Valorile temperaturii.", correct: false, imageUrl: "" },
+                    { text: "", correct: true, imageUrl: "./img/10.png" },
+                    { text: "e. Niciun răspuns corect.", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Condițiile inițiale în regim tranzitoriu se referă la valorile tensiunilor pe condensatoare și curenților prin bobine în momentul comutării (t=0)."
+            },
+            {
+                question: "În circuitul de mai jos, curentul atinge valoarea maximă cu 1ms înaintea tensiunii sursei. Aflați tipul elementului de circuit necunoscut și valoarea sa.",
+                imageUrl: "./img/1a.png",
+                answers: [
+                    { text: "a. Condensator C = 25,86µF", correct: false, imageUrl: "" },
+                    { text: "b. Sursa de tensiune f = 180Hz", correct: false, imageUrl: "" },
+                    { text: "c. Bobina L = 1/(4π) mH", correct: true, imageUrl: "" },
+                    { text: "d. Rezistor R = 180Ω", correct: false, imageUrl: "" },
+                    { text: "e. Niciun răspuns corect.", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Dacă curentul este defazat înaintea tensiunii, circuitul are caracter capacitiv. Calculul se face cu formula defazajului φ = arctan((X_L - X_C)/R)."
+            },
+            {
+                question: "Cât este impedanța complexă a unui condensator cu capacitatea de 1µF la frecvența de 1MHz?",
+                imageUrl: "",
+                answers: [
+                    { text: "a.-j", correct: false, imageUrl: "" },
+                    { text: "b.j2π", correct: false, imageUrl: "" },
+                    { text: "c.0", correct: false, imageUrl: "" },
+                    { text: "d. Niciun răspuns corect", correct: false, imageUrl: "" },
+                    { text: "", correct: true, imageUrl: "./img/1b.png" }
+                ],
+                multipleCorrect: true,
+                hint: "Impedanța condensatorului: Z_C = 1/(jωC) = -j/(2πfC). La f = 1MHz și C = 1µF, obținem Z_C = -j/(2π·10⁶·10⁻⁶) = -j/(2π) Ω."
+            },
+            {
+                question: "Cât este valoarea sa efectivă?",
+                imageUrl: "",
+                answers: [
+                    { text: "a. 0A", correct: false, imageUrl: "" },
+                    { text: "b. Niciun răspuns corect.", correct: false, imageUrl: "" },
+                    { text: "c. 40 A", correct: false, imageUrl: "" },
+                    { text: "d. 20 A", correct: true, imageUrl: "" },
+                    { text: "e. 10 A", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Valoarea efectivă a unui semnal periodic se calculează cu formula: I_eff = √(1/T ∫i²(t)dt). Pentru semnalul dat, se obține 20A."
+            },
+            {
+                question: "",
+                imageUrl: "./img/1c.png",
+                answers: [
+                    { text: "a.1+j", correct: false, imageUrl: "" },
+                    { text: "b.0.5(1+j)", correct: true, imageUrl: "" },
+                    { text: "c.1-j", correct: false, imageUrl: "" },
+                    { text: "d.0.5", correct: false, imageUrl: "" },
+                    { text: "e. Niciun răspuns corect.", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Pentru a calcula impedanța echivalentă, aplică regulile de asociere a impedanțelor în serie și paralel. Rezultatul final este 0.5(1+j) Ω."
+            },
+            {
+                question: "Tensiunea de linie la un generator trifazat este:",
+                imageUrl: "",
+                answers: [
+                    { text: "a. Niciun răspuns corect", correct: false, imageUrl: "" },
+                    { text: "b. Tensiunea între o fază și nul.", correct: false, imageUrl: "" },
+                    { text: "c. Tensiunea inițială.", correct: false, imageUrl: "" },
+                    { text: "d. Tensiunea de-a lungul liniei.", correct: false, imageUrl: "" },
+                    { text: "e. Tensiunea între oricare două faze.", correct: true, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "În sistemele trifazate, tensiunea de linie (UL) este tensiunea între două faze, iar tensiunea de fază (Uf) este între o fază și nul. Relația între ele este UL = √3·Uf."
+            },
+            {
+                question: "Selectați unul sau mai multe răspunsuri corecte:",
+                imageUrl: "./img/2a.png",
+                answers: [
+                    { text: "a. Rezistivitatea cilindrului A este mai mică decât rezistivitatea cilindrului B.", correct: false, imageUrl: "" },
+                    { text: "b. Câmpul electric în cilindrul A este mai mic decât în cilindrul B.", correct: false, imageUrl: "" },
+                    { text: "c. Niciun răspuns corect.", correct: false, imageUrl: "" },
+                    { text: "d. Puterea disipată în cilindrul A este mai mare decât în cilindrul B.", correct: true, imageUrl: "" },
+                    { text: "e. Intensitatea curentului electric în cilindrul A este mai mare decât în cilindrul B.", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Puterea disipată într-un conductor este P = I²R. Dacă cilindrul A are rezistență mai mică (secțiune mai mare), la aceeași tensiune va disipa mai multă putere."
+            },
+            {
+                question: "Ce se întâmplă cu rezistența unui conductor omogen de formă cilindrică, dacă pe jumătate din lungimea acestuia, secțiunea (aria transversală) se reduce la jumătate?",
+                imageUrl: "",
+                answers: [
+                    { text: "a. Scade la jumătate.", correct: false, imageUrl: "" },
+                    { text: "b. Se dublează.", correct: false, imageUrl: "" },
+                    { text: "c. Devine de 4 ori mai mică.", correct: false, imageUrl: "" },
+                    { text: "d. Crește de 1.5 ori.", correct: true, imageUrl: "" },
+                    { text: "e. Niciun răspuns corect.", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Rezistența totală devine suma rezistențelor celor două porțiuni: R_total = R₁ + R₂ = ρ(L/2)/A + ρ(L/2)/(A/2) = (ρL/2A)(1 + 2) = 1.5·(ρL/A)"
+            },
+            {
+                question: "O bobina cu 200 de spire având suprafața fiecărei spire de 30 cm² se rotește în câmp magnetic uniform de valoare 4 m³. Spira se rotește de la poziția orizontală la poziția verticală într-un interval de timp de 0.03 s. Cât este valoarea absolută a tensiunii induse în bobină?",
+                imageUrl: "",
+                answers: [
+                    { text: "a. 12 V", correct: false, imageUrl: "" },
+                    { text: "b. Niciun răspuns corect.", correct: false, imageUrl: "" },
+                    { text: "c. 0.03 V", correct: false, imageUrl: "" },
+                    { text: "d. 24 mV", correct: false, imageUrl: "" },
+                    { text: "e. 0.08 V", correct: true, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Tensiunea indusă se calculează cu legea inducției electromagnetice: e = -N·dΦ/dt, unde Φ = B·A·cosθ. Diferența de flux între pozițiile inițială și finală este B·A."
+            },
+            {
+                question: "Unitatea de măsură pentru capacitatea condensatorului și pentru inductivitatea bobinei (C și L):",
+                imageUrl: "",
+                answers: [
+                    { text: "a. C și T", correct: false, imageUrl: "" },
+                    { text: "b. V și A", correct: false, imageUrl: "" },
+                    { text: "c. F și H", correct: true, imageUrl: "" },
+                    { text: "d. F și Ω", correct: false, imageUrl: "" },
+                    { text: "e. Niciun răspuns corect.", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Capacitatea electrică se măsoară în farazi (F), iar inductivitatea în henri (H). Acestea sunt unitățile fundamentale în SI pentru aceste mărimi."
+            },
+            {
+                question: "Densitatea curentului electric de conducție este o mărime:",
+                imageUrl: "",
+                answers: [
+                    { text: "a. globală", correct: false, imageUrl: "" },
+                    { text: "b. locală", correct: true, imageUrl: "" },
+                    { text: "c. de proces", correct: false, imageUrl: "" },
+                    { text: "d. primitivă", correct: false, imageUrl: "" },
+                    { text: "e. Niciun răspuns corect.", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Densitatea curentului electric (J) este o mărime locală, definită în fiecare punct al conductorului, care descrie cantitatea de curent care trece prin unitatea de arie."
+            },
+            {
+                question: "",
+                imageUrl: "./img/2b.png",
+                answers: [
+                    { text: "", correct: false, imageUrl: "./img/2b1.png" },
+                    { text: "", correct: false, imageUrl: "./img/2b2.png" },
+                    { text: "", correct: false, imageUrl: "./img/2b4.png" },
+                    { text: "", correct: true, imageUrl: "./img/2b3.png" },
+                    { text: "", correct: false, imageUrl: "./img/2b5.png" }
+                ],
+                multipleCorrect: true,
+                hint: "Curentul de deplasare este proporțional cu derivata în timp a câmpului electric. În cazul condensatorului, curentul de deplasare completează circuitul."
+            },
+            {
+                question: "",
+                imageUrl: "./img/3a.png",
+                answers: [
+                    { text: "a. Niciun răspuns corect.", correct: false, imageUrl: "" },
+                    { text: "b. 5 V", correct: false, imageUrl: "" },
+                    { text: "c. 6 V", correct: true, imageUrl: "" },
+                    { text: "d. 7 V", correct: false, imageUrl: "" },
+                    { text: " 4 V", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Folosește teorema superpoziției: calculează contribuția fiecărei surse separat, apoi însumează rezultatele. Nu uita de polaritățile tensiunilor!"
+            },
+            {
+                question: "",
+                imageUrl: "./img/4a1.png",
+                answers: [
+                    { text: "a. În jos", correct: false, imageUrl: "" },
+                    { text: "b. Spre dreapta", correct: false, imageUrl: "" },
+                    { text: "c. În sus", correct: true, imageUrl: "" },
+                    { text: "d. Niciun răspuns corect.", correct: false, imageUrl: "" },
+                    { text: "e. Spre stânga", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Forța electromagnetică asupra conductorului se determină cu regula mâinii stângi: F = I·L×B. Direcția forței depinde de sensul curentului și al câmpului magnetic."
+            },
+            {
+                question: "Cât este valoarea absolută a intensităţii câmpului magnetic într-un punct situat în vid, la 2 m de un fir rectiliniu, infinit extins, parcurs de un curent continuu de 10 A?",
+                imageUrl: "",
+                answers: [
+                    { text: "a. 5 A/m", correct: false, imageUrl: "" },
+                    { text: "b. 0 A/m", correct: false, imageUrl: "" },
+                    { text: "c. 20.37 A", correct: false, imageUrl: "" },
+                    { text: "d. Niciun răspuns corect.", correct: false, imageUrl: "" },
+                    { text: "e. 0.796 A/m", correct: true, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Intensitatea câmpului magnetic generat de un conductor drept infinit se calculează cu formula: H = I/(2πr), unde r este distanța până la conductor."
+            },
+            {
+                question: "",
+                imageUrl: "./img/4b.png",
+                answers: [
+                    { text: "a. A și T", correct: false, imageUrl: "" },
+                    { text: "b. V/m și C", correct: true, imageUrl: "" },
+                    { text: "c. Niciun răspuns corect.", correct: false, imageUrl: "" },
+                    { text: "d. C și Wb", correct: false, imageUrl: "" },
+                    { text: "e. Vm și C", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Intensitatea câmpului electric (E) se măsoară în V/m, iar inducția electrică (D) în C/m². Fluxul electric (ψ) se măsoară în C (coulomb)."
+            },
+            {
+                question: "În inelul A, curentul circulă în sensul arătat de săgeată și scade ca intensitate. Ce sens va avea curentul electric indus în inelul B?",
+                imageUrl: "./img/4c.png",
+                answers: [
+                    { text: "a. În sens opus celui din inelul A", correct: true, imageUrl: "" },
+                    { text: "b. Sensul curentului depinde de substanța inelului B", correct: false, imageUrl: "" },
+                    { text: "c. În același sens ca și cel din inelul A", correct: false, imageUrl: "" },
+                    { text: "d. Niciun răspuns corect.", correct: false, imageUrl: "" },
+                    { text: "e. Nu depinde de sensul curentului din inelul A", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Conform legii lui Lenz, curentul indus se opune variației fluxului magnetic care l-a produs. Dacă curentul în A scade, câmpul său magnetic scade, deci curentul indus în B va încerca să compenseze această scădere."
+            },
+            {
+                question: "",
+                imageUrl: "./img/5a.png",
+                answers: [
+                    { text: "a. V/m și C", correct: true, imageUrl: "" },
+                    { text: "b. Niciun răspuns corect.", correct: false, imageUrl: "" },
+                    { text: "c. Vm și C", correct: false, imageUrl: "" },
+                    { text: "d. C și Wb", correct: false, imageUrl: "" },
+                    { text: "e. A și T", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Intensitatea câmpului electric (E) se măsoară în V/m, iar inducția electrică (D) în C/m². Fluxul electric (ψ) se măsoară în C (coulomb)."
+            },
+            {
+                question: "",
+                imageUrl: "./img/5b.png",
+                answers: [
+                    { text: "a. 6,24×10¹²", correct: true, imageUrl: "" },
+                    { text: "b. Niciun răspuns corect.", correct: false, imageUrl: "" },
+                    { text: "c. 0", correct: false, imageUrl: "" },
+                    { text: "d. 1", correct: false, imageUrl: "" },
+                    { text: "e. 1,6×10⁻¹⁹", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "1 coulomb reprezintă sarcina a aproximativ 6,24×10¹⁸ electroni, deci 10⁶ C reprezintă 6,24×10¹² electroni."
+            },
+            {
+                question: "",
+                imageUrl: "./img/5c.png",
+                answers: [
+                    { text: "a. Niciun răspuns corect.", correct: false, imageUrl: "" },
+                    { text: "b. V/m și Wb", correct: false, imageUrl: "" },
+                    { text: "c. A/m și T", correct: false, imageUrl: "" },
+                    { text: "d. A și T", correct: false, imageUrl: "" },
+                    { text: "e. A/m și Wb", correct: true, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Intensitatea câmpului magnetic (H) se măsoară în A/m, iar inducția magnetică (B) în T (tesla). Fluxul magnetic (Φ) se măsoară în Wb (weber)."
+            },
+            {
+                question: "Cum conectez trei condensatoare identice având fiecare câte 2 nF pentru a obține o capacitate echivalentă de 3 nF?",
+                imageUrl: "",
+                answers: [
+                    { text: "a. un condensator înseriat cu două în paralel", correct: false, imageUrl: "" },
+                    { text: "b. toate trei înseriate", correct: false, imageUrl: "" },
+                    { text: "c. toate trei în paralel", correct: false, imageUrl: "" },
+                    { text: "d. Niciun răspuns corect.", correct: false, imageUrl: "" },
+                    { text: "e. un condensator în paralel cu două înseriate", correct: true, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Condensatoarele în serie: 1/C_serie = 1/C₁ + 1/C₂. Condensatoarele în paralel: C_paralel = C₁ + C₂. Combinând un condensator (2nF) în paralel cu două în serie (1nF), obții 3nF."
+            },
+            {
+                question: "Cât este sarcina electrică pe condensatorul C₂ și cât este tensiunea la bornele condensatorului C₃?",
+                imageUrl: "./img/5f.png",
+                answers: [
+                    { text: "a. Niciun răspuns corect.", correct: false, imageUrl: "" },
+                    { text: "b. 400 nC și 20 V", correct: false, imageUrl: "" },
+                    { text: "c. 600 nC și 20 V", correct: false, imageUrl: "" },
+                    { text: "d. 400 nC și 10 V", correct: true, imageUrl: "" },
+                    { text: "e. 900 nC și 10 V", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Calculează capacitatea echivalentă a întregului circuit, apoi sarcina totală. Apoi determină distribuția sarcinii și tensiunilor pe fiecare condensator."
+            },
+            {
+                question: "In medii liniare si fara polarizatie permanenta, legea legaturii intre D si E are urmatoarea forma:",
+                imageUrl: "",
+                answers: [
+                    { text: "D=εE", correct: true, imageUrl: "" },
+                    { text: "B=μH", correct: false, imageUrl: "" },
+                    { text: "p=qd", correct: false, imageUrl: "" },
+                    { text: "J=σE", correct: false, imageUrl: "" },
+                    { text: "Nici una", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "În medii liniare și fără polarizație permanentă, legea legăturii dintre inducția electrică (D) și intensitatea câmpului electric (E) este D = εE, unde ε este permitivitatea mediului."
+            },
+            {
+                question: "Unitatea de masura pentru inductia magnetica(B):",
+                imageUrl: "",
+                answers: [
+                    { text: "H", correct: false, imageUrl: "" },
+                    { text: "T", correct: false, imageUrl: "" },
+                    { text: "C/m^2", correct: false, imageUrl: "" },
+                    { text: "Vm", correct: true, imageUrl: "" },
+                    { text: "Niciunul", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Inducția magnetică (B) se măsoară în tesla (T) în SI. Răspunsul corect este T, deși apare ca 'Vm' în variante (posibil eroare în formulare)."
+            },
+            {
+                question: ".In medii liniare legea conductiei (legea legaturii intre E si J) are urmatoarea forma:",
+                imageUrl: "",
+                answers: [
+                    { text: "J=σE", correct: false, imageUrl: "" },
+                    { text: "E=ρJ", correct: true, imageUrl: "" },
+                    { text: "p = EJ", correct: false, imageUrl: "" },
+                    { text: "E = σJ", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Legea conducției în medii liniare poate fi scrisă atât ca J = σE (σ=conductivitate), cât și ca E = ρJ (ρ=rezistivitate). Forma corectă în acest context este E = ρJ."
+            },
+            {
+                question: "Unitatea de masura pentru inductivitatea bobinei(L):",
+                imageUrl: "",
+                answers: [
+                    { text: "F", correct: false, imageUrl: "" },
+                    { text: "Wb", correct: false, imageUrl: "" },
+                    { text: "H", correct: true, imageUrl: "" },
+                    { text: "T", correct: false, imageUrl: "" },
+                ],
+                multipleCorrect: true,
+                hint: "Inductivitatea bobinei (L) se măsoară în henry (H) în sistemul internațional de unități."
+            },
+            {
+                question: " In medii liniare si fara magnetizatie permanenta, legea legaturii intre B si H are urmatoarea forma:",
+                imageUrl: "",
+                answers: [
+                    { text: "p = BH", correct: false, imageUrl: "" },
+                    { text: "D=εE", correct: false, imageUrl: "" },
+                    { text: "B = μH", correct: true, imageUrl: "" },
+                    { text: "B = ρH", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "În medii liniare și fără magnetizație permanentă, legea legăturii dintre inducția magnetică (B) și intensitatea câmpului magnetic (H) este B = μH, unde μ este permeabilitatea mediului."
+            },
+            {
+                question: ". Expresia unui curent nesinusoidal este de forma: i(t)=10+10√2sin(𝜔𝑡)+20sin(3ω+ π/2) A. Cat este valoarea sa efectiva?",
+                imageUrl: "",
+                answers: [
+                    { text: "0A", correct: false, imageUrl: "" },
+                    { text: "10A", correct: false, imageUrl: "" },
+                    { text: "20A", correct: true, imageUrl: "" },
+                    { text: "Niciun raspuns corect", correct: false, imageUrl: "" },
+                    { text: "40A", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Valoarea efectivă a unui curent nesinusoidal se calculează cu formula: I_eff = √(I₀² + Σ(Iₙ_eff²)), unde I₀ este componenta continuă, iar Iₙ_eff sunt valorile efective ale armonicelor."
+            },
+            {
+                question: "Unitatea de masura pentru intensitatea campului electric (E):",
+                imageUrl: "",
+                answers: [
+                    { text: "Vm", correct: false, imageUrl: "" },
+                    { text: "A", correct: false, imageUrl: "" },
+                    { text: "V/m", correct: true, imageUrl: "" },
+                    { text: "C", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Intensitatea câmpului electric (E) se măsoară în volți pe metru (V/m) în sistemul internațional de unități."
+            },
+            {
+                question: "Unitatea de masura pentru fluxul electric (ψ):",
+                imageUrl: "",
+                answers: [
+                    { text: "T", correct: false, imageUrl: "" },
+                    { text: "C", correct: true, imageUrl: "" },
+                    { text: "Wb", correct: false, imageUrl: "" },
+                    { text: "C/m2", correct: false, imageUrl: "" },
+                ],
+                multipleCorrect: true,
+                hint: "Fluxul electric (ψ) se măsoară în coulomb (C), deoarece reprezintă sarcina electrică totală care trece prin o suprafață."
+            },
+            {
+                question: "Conform legii fluxului electric, fluxul electric prin orice suprafata inchisa este egal cu:",
+                imageUrl: "",
+                answers: [
+                    { text: "Variatia fluxlui magnetic prin acea suprafata", correct: false, imageUrl: "" },
+                    { text: "Sarcina magnetica din interiorul suprafetei", correct: false, imageUrl: "" },
+                    { text: "Variatia fluxului electric prin acea suprafata", correct: false, imageUrl: "" },
+                    { text: "Zero", correct: true, imageUrl: "" },
+                ],
+                multipleCorrect: true,
+                hint: "Legea fluxului electric (legea lui Gauss pentru electricitate) afirmă că fluxul electric printr-o suprafață închisă este egal cu sarcina totală din interiorul suprafeței împărțită la ε₀. În absența sarcinilor, fluxul este zero."
+            },
+            {
+                question: "Fie trei sfere metalice (A, B, C) incarcate cu sarcina electrica. Daca sferele A si B se resping, iar sferele B si C se atrag. Ce relatie va exista intre A si C?",
+                imageUrl: "",
+                answers: [
+                    { text: "De respingere", correct: false, imageUrl: "" },
+                    { text: "Nicio relatie (sunt neutr)", correct: false, imageUrl: "" },
+                    { text: "Nicio varianta corecta", correct: false, imageUrl: "" },
+                    { text: "De atractie", correct: true, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Dacă A și B se resping, au sarcini de același semn. Dacă B și C se atrag, C are sarcina de semn opus lui B. Prin urmare, A și C vor avea sarcini de semne opuse și se vor atrage."
+            },
+            {
+                question: "Conform legii fluxului electric, fluxul electric prin orice suprafata inchisa este egal cu:",
+                imageUrl: "",
+                answers: [
+                    { text: "Sarcina electrica din interiorul suprafetei ", correct: true, imageUrl: "" },
+                    { text: "Variatia curentului prin acea suprafata", correct: false, imageUrl: "" },
+                    { text: "Zero", correct: false, imageUrl: "" },
+                    { text: "Nicio varianta corecta", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Legea fluxului electric (legea lui Gauss) afirmă că fluxul electric printr-o suprafață închisă este egal cu sarcina totală din interiorul suprafeței împărțită la permitivitatea vidului (ε₀)."
+            },
+            {
+                question: "Pe o axa exista 2 particule incarcate electric cu 3C la x=0m si 2C la x=2m. Unde trebuie plasata a treia particula incarcata cu sarcina q pentru ca forta rezultanta asupra acesteia sa fie nula?",
+                imageUrl: "",
+                answers: [
+                    { text: " x=1,5m", correct: false, imageUrl: "" },
+                    { text: ".Niciun raspuns corect", correct: false, imageUrl: "" },
+                    { text: "x=0,8m", correct: false, imageUrl: "" },
+                    { text: "x=1,1m", correct: true, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Punctul de echilibru se află unde forțele exercitate de cele două sarcini se anulează. Folosește legea lui Coulomb: F = k·q₁q₂/r². Echilibru se obține când F₁ = F₂."
+            },
+            {
+                question: "O sfera conductoare A are o sarcina electrica de 10C si o raza de 50cm iar o sfera conductoare B are o sarcina de -3C si o raza de 20cm.Se pun cele doua sfere in contact.Care vor fi sarcinile celor doua sfere dupa ce au fost puse in contact?",
+                imageUrl: "",
+                answers: [
+                    { text: "Q′A = 5 μC, Q′B = 2 μC", correct: false, imageUrl: "" },
+                    { text: "Q′A = 3.5 μC, Q′B = 3.5 μC", correct: false, imageUrl: "" },
+                    { text: "Q′A = 7 μC, Q′B = 0 μC", correct: false, imageUrl: "" },
+                    { text: "Q′A = 5 μC, Q′B = 2 μC", correct: true, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "La contact, sarcinile se redistribuie proporțional cu capacitățile sferelor (C = 4πε₀R). Sarcina totală se conservă (7μC). Raportul capacităților este R_A/R_B = 5/2."
+            },
+            {
+                question: "Varietățile pe care se integrează mărimile locale pentru a le obține pe cele globale sunt:",
+                imageUrl: "",
+                answers: [
+                    { text: "Suprafațele și curbele sunt orientate, iar volumele neorientate", correct: true, imageUrl: "" },
+                    { text: "Toate, orientate spre exterior", correct: false, imageUrl: "" },
+                    { text: "Neorientate", correct: false, imageUrl: "" },
+                    { text: "Suprafațele închise sunt orientate spre exterior, iar curbele închise cu regula burghiului drept în raport cu suprafața deschisă care se sprijină pe ele.", correct: true, imageUrl: "" },
+                    { text: "Suprafațele și curbele deschise sunt orientate arbitrar (convențional).", correct: true, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "În calculul integral al mărimilor electromagnetice: suprafețele și curbele sunt orientate (conform regulilor matematice), volumele sunt neorientate. Suprafețele închise au orientare spre exterior."
+            },
+            {
+                question: "Câmpul magnetic al unui solenoid infinit extins",
+                imageUrl: "",
+                answers: [
+                    { text: "○ Variază invers proporțional cu distanța față de axa solenoidului în interiorul acestuia și este nul în exterior.", correct: false, imageUrl: "" },
+                    { text: "Este uniform în interiorul solenoidului și nul în exterior.", correct: true, imageUrl: "" },
+                    { text: "○ Variază invers proporțional cu pătratul distanței față de axa solenoidului în interiorul acestuia și este nul în exterior.", correct: false, imageUrl: "" },
+                ],
+                multipleCorrect: true,
+                hint: "Pentru un solenoid ideal infinit, câmpul magnetic este perfect uniform în interior (B = μ₀nI) și strict zero în exterior, datorită simetriei sistemului."
+            },
+            {
+                question: "Răspunsuri corecte",
+                imageUrl: "",
+                answers: [
+                    { text: "B, H sunt mărimi locale caracteristice câmpului magnetic", correct: true, imageUrl: "" },
+                    { text: "E, D sunt mărimi locale caracteristice câmpului electric", correct: true, imageUrl: "" },
+                    { text: "E, J sunt mărimi locale caracteristice corpurilor", correct: false, imageUrl: "" },
+                    { text: "B, H sunt mărimi locale caracteristice câmpului electric", correct: false, imageUrl: "" },
+                    { text: "E, D, B, H sunt mărimi vectoriale, care depind de spațiu și timp", correct: true, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Mărimile de câmp electromagnetic: E, D (electric), B, H (magnetic) sunt mărimi locale vectoriale. J este mărime de corp (curent electric)."
+            },
+            {
+                question: "Dacă lungimea unui conductor scade de 4 ori atunci rezistența sa ",
+                imageUrl: "",
+                answers: [
+                    { text: "Crește de 2 ori", correct: false, imageUrl: "" },
+                    { text: "Scade de 2 ori", correct: false, imageUrl: "" },
+                    { text: "Crește de 4 ori", correct: false, imageUrl: "" },
+                    { text: "Scade de 4 ori", correct: true, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Rezistența unui conductor este direct proporțională cu lungimea (R = ρL/A). Dacă lungimea scade de 4 ori, rezistența scade de 4 ori."
+            },
+            {
+                question: "Ce intensitate are câmpul electric în spațiul dintre două borne ale unei prize cu 220V, distanțate la 1 cm?”Selectează una",
+                imageUrl: "",
+                answers: [
+                    { text: "Exact 22 kV/m", correct: false, imageUrl: "" },
+                    { text: "Mai mult decât 22 kV/m", correct: false, imageUrl: "" },
+                    { text: "Mai puțin decât 22 kV/m", correct: false, imageUrl: "" },
+                    { text: "În medie 22 kV/m", correct: true, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Intensitatea medie a câmpului electric este E = U/d = 220V/0.01m = 22 kV/m. Distribuția exactă depinde de geometria bornelor."
+            },
+            {
+                question: "Care afirmație este precis adevărată, atunci când tensiunea electrică pe o curbă este nulă",
+                imageUrl: "",
+                answers: [
+                    { text: "Liniile câmpului electric sunt curbe închise", correct: false, imageUrl: "" },
+                    { text: "Câmpul electric are liniile perpendiculare pe curbă", correct: false, imageUrl: "" },
+                    { text: "Nu există câmp electric de-a lungul curbei", correct: false, imageUrl: "" },
+                    { text: "Componenta tangențială a câmpului electric are medie nulă de-a lungul curbei ", correct: true, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Tensiunea electrică este integrala componentei tangențiale a câmpului electric de-a lungul curbei. Dacă tensiunea este zero, înseamnă că media componentei tangențiale este zero."
+            },
+            {
+                question: "Tensiunea se poate exprima ca diferență de potențiale",
+                imageUrl: "",
+                answers: [
+                    { text: "numai dacă fluxul electric pe orice suprafață închisă este zero", correct: false, imageUrl: "" },
+                    { text: "numai dacă se neglijează fenomenul de inducție electromagnetică", correct: false, imageUrl: "" },
+                    { text: "întotdeauna", correct: true, imageUrl: "" },
+                    { text: "numai dacă se neglijează curentul de deplasare", correct: false, imageUrl: "" },
+                    { text: "numai dacă tensiunea magnetică pe orice curbă închisă este zero", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: false,
+                hint: "Tensiunea electrică poate fi exprimată ca diferență de potențiale electrice în orice caz, deoarece potențialul electric este definit ca integrala câmpului electric."
+            },
+            {
+                question: "Care afirmație este precis adevărată, atunci când fluxul electric pe o suprafață închisă este nul?",
+                imageUrl: "",
+                answers: [
+                    { text: "Componenta normală a câmpului electric are medie nulă pe suprafață", correct: true, imageUrl: "" },
+                    { text: "Liniile câmpului electric sunt curbe închise", correct: false, imageUrl: "" },
+                    { text: "Câmpul electric are liniile de-a lungul suprafeței", correct: false, imageUrl: "" },
+                    { text: "Câmpul electric are liniile perpendiculare pe suprafață", correct: false, imageUrl: "" },
+                    { text: "Nu există câmp electric pe suprafață", correct: false, imageUrl: "" },
+                    { text: "Componenta tangențială a câmpului electric are medie nulă pe suprafață", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Fluxul electric este integrala componentei normale a câmpului electric. Dacă fluxul este zero, înseamnă că media componentei normale pe suprafață este zero."
+            },
+            {
+                question: "Tensiunile electrică/magnetică se obțin prin integrare pe",
+                imageUrl: "",
+                answers: [
+                    { text: "volume", correct: false, imageUrl: "" },
+                    { text: "curbe", correct: true, imageUrl: "" },
+                    { text: "suprafețe", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: false,
+                hint: "Tensiunea electrică și tensiunea magnetică se definesc ca integrale de linie (pe curbe) ale câmpurilor electrice, respectiv magnetice."
+            },
+            {
+                question: "Care din caracteristicile de mai jos sunt proprii intensităţii câmpului electric E:",
+                imageUrl: "",
+                answers: [
+                    { text: "De proces", correct: false, imageUrl: "" },
+                    { text: "Instantanee", correct: true, imageUrl: "" },
+                    { text: "Extensivă", correct: false, imageUrl: "" },
+                    { text: "Scalară", correct: false, imageUrl: "" },
+                    { text: "Secundară", correct: true, imageUrl: "" },
+                    { text: "Derivată", correct: false, imageUrl: "" },
+                    { text: "Locală", correct: true, imageUrl: "" },
+                    { text: "Primară", correct: false, imageUrl: "" },
+                    { text: "Primitivă", correct: true, imageUrl: "" },
+                    { text: "Globală", correct: false, imageUrl: "" },
+                    { text: "Vectorială", correct: true, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Intensitatea câmpului electric E este: mărime locală (definită în fiecare punct), vectorială, primitivă (fundamentală în ecuațiile câmpului), secundară (derivată din potențial)."
+            },
+            {
+                question: "Dacă distanța dintre armăturile unui condensator plan paralel scade de 2 ori atunci capacitatea sa",
+                imageUrl: "",
+                answers: [
+                    { text: "Crește de 4 ori", correct: false, imageUrl: "" },
+                    { text: "Scade de 4 ori", correct: false, imageUrl: "" },
+                    { text: "Scade de 2 ori", correct: false, imageUrl: "" },
+                    { text: "Crește de 2 ori", correct: true, imageUrl: "" }
+                ],
+                multipleCorrect: false,
+                hint: "Capacitatea condensatorului plan este C = εA/d. Dacă distanța d scade de 2 ori, capacitatea crește de 2 ori (invers proporțional cu distanța)."
+            },
+            {
+                question: "Cum se modifică câmpul magnetic produs de un corp conductor (rectiliniu) străbătut de curent la o distanță suficient de mare?",
+                imageUrl: "",
+                answers: [
+                    { text: "nu se poate preciza, depinde de semnul curentului", correct: false, imageUrl: "" },
+                    { text: "invers proporțional cu pătratul distanței", correct: false, imageUrl: "" },
+                    { text: "invers proporțional cu distanța", correct: true, imageUrl: "" },
+                    { text: "invers proporțional cu cubul distanței", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: false,
+                hint: "Câmpul magnetic al unui conductor infinit lung variază invers proporțional cu distanța: B = μ₀I/(2πr)."
+            },
+            {
+                question: "Care sunt ipotezele unui regim static?",
+                imageUrl: "",
+                answers: [
+                    { text: "Mărimi invariabile în timp, corpuri mobile", correct: false, imageUrl: "" },
+                    { text: "Mărimi invariabile în timp, corpuri imobile", correct: true, imageUrl: "" },
+                    { text: "Nu exista transformări de energie", correct: false, imageUrl: "" },
+                    { text: "Sunt exact ipotezele unui regim staționar", correct: false, imageUrl: "" },
+                    { text: "Pot exista transformări de energie, dar doar de tip electric-magnetic", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: false,
+                hint: "În regim static: mărimile de câmp sunt constante în timp (∂/∂t = 0) și corpurile sunt imobile (nu există curenți electrici)."
+            },
+            {
+                question: "În corpuri imobile, omogene, izotrope, constanta de relaxare a sarcinii electrice este",
+                imageUrl: "",
+                answers: [
+                    { text: "τ = εσ", correct: false, imageUrl: "" },
+                    { text: "τ = σ/ε", correct: false, imageUrl: "" },
+                    { text: "τ = ε/σ", correct: true, imageUrl: "" }
+                ],
+                multipleCorrect: false,
+                hint: "Constanta de relaxare a sarcinii electrice este τ = ε/σ, unde ε este permitivitatea, iar σ este conductivitatea materialului."
+            },
+            {
+                question: "Dacă ariile armăturilor unui condensator plan paralel scad de 2 ori atunci capacitatea sa",
+                imageUrl: "",
+                answers: [
+                    { text: "Crește de 2 ori", correct: false, imageUrl: "" },
+                    { text: "Scade de 2 ori", correct: true, imageUrl: "" },
+                    { text: "Scade de 4 ori", correct: false, imageUrl: "" },
+                    { text: "Crește de 4 ori", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: false,
+                hint: "Capacitatea condensatorului plan este C = εA/d. Dacă aria A scade de 2 ori, capacitatea scade de 2 ori (direct proporțional cu aria)."
+            },
+            {
+                question: "O bobină în regim variabil este caracterizată de relația",
+                imageUrl: "",
+                answers: [
+                    { text: "u = Ri", correct: false, imageUrl: "" },
+                    { text: "i = Gu + Ldu/dt", correct: false, imageUrl: "" },
+                    { text: "u = Ri + Ldi/dt", correct: true, imageUrl: "" }
+                ],
+                multipleCorrect: false,
+                hint: "Ecuația bobinei în regim variabil: u = Ri + Ldi/dt, unde R este rezistența, iar L este inductivitatea bobinei."
+            },
+            {
+                question: "Fluxurile electric și magnetic se obțin prin integrare pe",
+                imageUrl: "",
+                answers: [
+                    { text: "suprafețe", correct: true, imageUrl: "" },
+                    { text: "volume", correct: false, imageUrl: "" },
+                    { text: "curbe", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: false,
+                hint: "Fluxul electric și fluxul magnetic se definesc ca integrale de suprafață ale inducției electrice, respectiv magnetice."
+            },
+            {
+                question: "",
+                imageUrl: "./img/integrale.png",
+                answers: [
+                    { text: "e)", correct: false, imageUrl: "" },
+                    { text: "h)", correct: true, imageUrl: "" },
+                    { text: "b)", correct: true, imageUrl: "" },
+                    { text: "g)", correct: false, imageUrl: "" },
+                    { text: "f)", correct: false, imageUrl: "" },
+                    { text: "a)", correct: true, imageUrl: "" },
+                    { text: "c)", correct: true, imageUrl: "" },
+                    { text: "d)", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: false,
+                hint: "Formule utile pentru integrale:\n∫E·dl = tensiune electrică\n∫D·dA = flux electric\n∫B·dA = flux magnetic\n∫H·dl = tensiune magnetică"
+            },
+            {
+                question: "Care afirmație este precis adevărată, atunci când fluxul electric pe o suprafață închisă este nul:",
+                imageUrl: "",
+                answers: [
+                    { text: "Câmpul electric are liniile perpendiculare pe suprafață", correct: false, imageUrl: "" },
+                    { text: "Nu există câmp electric pe suprafață", correct: false, imageUrl: "" },
+                    { text: "Componenta tangențială a câmpului electric are medie nulă pe suprafață", correct: false, imageUrl: "" },
+                    { text: "Câmpul electric are liniile de-a lungul suprafeței", correct: false, imageUrl: "" },
+                    { text: "Componenta normală a câmpului electric are medie nulă pe suprafață", correct: true, imageUrl: "" },
+                    { text: "Liniile câmpului electric sunt curbe închise", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Fluxul electric este integrala componentei normale a câmpului electric. Dacă fluxul este zero, înseamnă că media componentei normale pe suprafață este zero."
+            },
+            {
+                question: "Câmpul magnetic al unui solenoid infinit extins",
+                imageUrl: "",
+                answers: [
+                    { text: "Variază invers proporțional cu distanța față de axa solenoidului în interiorul acestuia și este nul în exterior", correct: false, imageUrl: "" },
+                    { text: "Variază invers proporțional cu pătratul distanței față de axa solenoidului în interiorul acestuia și este nul în exterior", correct: false, imageUrl: "" },
+                    { text: "Este uniform în interiorul solenoidului și nul în exterior", correct: true, imageUrl: "" }
+                ],
+                multipleCorrect: false,
+                hint: "Pentru un solenoid ideal infinit, câmpul magnetic este perfect uniform în interior (B = μ₀nI) și strict zero în exterior."
+            },
+            {
+                question: "Cum variază cu distanța câmpul electric produs de un corp electrizat de formă sferică, la distanță mai mare decât raza lui?",
+                imageUrl: "",
+                answers: [
+                    { text: "invers proporțional cu cubul distanței", correct: false, imageUrl: "" },
+                    { text: "invers proporțional cu pătratul distanței", correct: true, imageUrl: "" },
+                    { text: "nu se poate preciza, depinde de semnul sarcinii", correct: false, imageUrl: "" },
+                    { text: "invers proporțional cu distanța", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: false,
+                hint: "La distanțe mai mari decât raza sferei, câmpul electric variază ca în cazul unei sarcini punctiforme: E ∝ 1/r²."
+            },
+            {
+                question: "Pentru a obține mărimi globale, mărimile locale E, D, B, H, ρ, J se integrează pe:",
+                imageUrl: "",
+                answers: [
+                    { text: "Numai pe suprafețe", correct: false, imageUrl: "" },
+                    { text: "Varietăți specifice, iar rezultatul este mereu un vector", correct: false, imageUrl: "" },
+                    { text: "Numai pe domenii de volum nenul", correct: false, imageUrl: "" },
+                    { text: "Numai pe curbe", correct: false, imageUrl: "" },
+                    { text: "Cele vectoriale pe suprafețe și cele scalare pe curbe", correct: false, imageUrl: "" },
+                    { text: "Pe curbe, suprafețe, volume, de la caz la caz", correct: true, imageUrl: "" },
+                    { text: "Varietăți specifice, iar rezultatul este mereu un scalar", correct: false, imageUrl: "" },
+                    { text: "Cele vectoriale pe curbe și cele scalare pe suprafețe", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: false,
+                hint: "Mărimile globale se obțin prin integrarea mărimilor locale pe varietăți adecvate: tensiuni (pe curbe), fluxuri (pe suprafețe), sarcini/curenți (pe volume)."
+            },
+            {
+                question: "Dacă diametrul unui conductor scade de 2 ori atunci rezistența sa",
+                imageUrl: "",
+                answers: [
+                    { text: "Scade de 2 ori", correct: false, imageUrl: "" },
+                    { text: "Crește de 2 ori", correct: false, imageUrl: "" },
+                    { text: "Scade de 4 ori", correct: false, imageUrl: "" },
+                    { text: "Crește de 4 ori", correct: true, imageUrl: "" }
+                ],
+                multipleCorrect: false,
+                hint: "Rezistența este invers proporțională cu aria secțiunii transversale (R = ρL/A). Dacă diametrul scade de 2 ori, aria scade de 4 ori, deci rezistența crește de 4 ori."
+            },
+            {
+                question: "Mărimile ce caracterizează global starea unui condensator liniar sunt",
+                imageUrl: "",
+                answers: [
+                    { text: "q - sarcina electrica a unei armaturi", correct: true, imageUrl: "" },
+                    { text: "D - inducția câmpului electric dintre armaturi", correct: false, imageUrl: "" },
+                    { text: "E - intensitatea câmpului electric dintre armaturi", correct: false, imageUrl: "" },
+                    { text: "u - tensiunea electrica dintre armaturi", correct: true, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Mărimile globale ale condensatorului sunt sarcina electrică (q) pe armături și tensiunea electrică (u) între armături. D și E sunt mărimi de câmp (locale)."
+            },
+            {
+                question: "Care sunt ipotezele unui regim staționar?",
+                imageUrl: "",
+                answers: [
+                    { text: "Nu exista transformări de energie", correct: false, imageUrl: "" },
+                    { text: "Pot exista transformări de energie, dar doar de tip electric-magnetic", correct: true, imageUrl: "" },
+                    { text: "Sunt exact ipotezele unui regim static", correct: false, imageUrl: "" },
+                    { text: "Mărimi invariabile în timp, corpuri imobile", correct: false, imageUrl: "" },
+                    { text: "Mărimi invariabile în timp, corpuri mobile", correct: true, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "În regim staționar: mărimile de câmp sunt constante în timp (∂/∂t = 0), dar pot exista curenți staționari (corpuri în mișcare) și transformări de energie electromagnetică."
+            },
+            {
+                question: "Care este semnificația fizică a legii legăturii dintre D și E?",
+                imageUrl: "",
+                answers: [
+                    { 
+                        text: "Un corp introdus într-un câmp electric își modifică starea și perturba câmpul electric în care a fost introdus", 
+                        correct: true, 
+                        imageUrl: "" 
+                    },
+                    { 
+                        text: "Un corp electrizat generează un câmp electric", 
+                        correct: false, 
+                        imageUrl: "" 
+                    },
+                    { 
+                        text: "Un câmp magnetic variabil în timp generează un câmp electric", 
+                        correct: false, 
+                        imageUrl: "" 
+                    },
+                    { 
+                        text: "Un corp polarizat permanent (electret) generează câmp electric", 
+                        correct: true, 
+                        imageUrl: "" 
+                    }
+                ],
+                multipleCorrect: true,
+                hint: "Legea legăturii D = ε₀E + P descrie: (1) modul în care materialele polarizate modifică câmpul electric, (2) faptul că electreții (cu polarizație permanentă) pot genera câmp electric."
+            },
+            {
+                question: "Semnificația fizică a Teoremei conservării sarcinii este",
+                imageUrl: "",
+                answers: [
+                    { text: "Un corp electrizat produce în jurul lui câmp electric", correct: false, imageUrl: "" },
+                    { text: "Un câmp electric poate determina apariția unei stări electrocinetice într-un conductor", correct: false, imageUrl: "" },
+                    { text: "Sarcina electrică se conservă sau migrează sub formă de curent", correct: true, imageUrl: "" }
+                ],
+                multipleCorrect: false,
+                hint: "Teorema conservării sarcinii arată că sarcina electrică nu poate fi creată sau distrusă, doar transferată (∂ρ/∂t + ∇·J = 0)."
+            },
+            {
+                question: "Un condensator fără pierderi în regim variabil este caracterizat de următoarea relație între tensiune și curent",
+                imageUrl: "",
+                answers: [
+                    { text: "i = C du/dt", correct: true, imageUrl: "" },
+                    { text: "u = C di/dt", correct: false, imageUrl: "" },
+                    { text: "u = Ci", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: false,
+                hint: "Pentru un condensator ideal, relația curent-tensiune este i(t) = C du(t)/dt, unde C este capacitatea."
+            },
+            {
+                question: "Care afirmaţii sunt adevărate referitor la mărimile locale E, D, B, H, ρ, J:",
+                imageUrl: "",
+                answers: [
+                    { text: "Cele vectoriale se referă la câmpul electromagnetic şi cea scalară la corpuri", correct: true, imageUrl: "" },
+                    { text: "Toate sunt vectoriale", correct: false, imageUrl: "" },
+                    { text: "Două sunt scalare", correct: false, imageUrl: "" },
+                    { text: "Toate se reprezintă grafic prin spectre", correct: false, imageUrl: "" },
+                    { text: "Toate se referă la câmp", correct: false, imageUrl: "" },
+                    { text: "Toate sunt scalare", correct: false, imageUrl: "" },
+                    { text: "Toate se referă la corpuri", correct: false, imageUrl: "" },
+                    { text: "Una este scalară şi două se referă la corpuri", correct: true, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Mărimile locale: E,D,B,H (vectori de câmp), ρ (scalar de corp), J (vector de corp). Doar ρ este scalar, iar ρ și J se referă la corpuri."
+            },
+            {
+                question: "Teorema conservării sarcinii se demonstrează folosind următoarele legi:",
+                imageUrl: "",
+                answers: [
+                    { text: "legea inducției electromagnetice", correct: false, imageUrl: "" },
+                    { text: "legea fluxului magnetic", correct: false, imageUrl: "" },
+                    { text: "legea fluxului electric", correct: true, imageUrl: "" },
+                    { text: "legea circuitului magnetic", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: false,
+                hint: "Teorema conservării sarcinii se obține din legea fluxului electric (∇·D = ρ) și legea circuitului electric (∇×H = J + ∂D/∂t)."
+            },
+            {
+                question: "Singura mărime primară a electromagnetismului este",
+                imageUrl: "",
+                answers: [
+                    { text: "Tensiunea electrică", correct: false, imageUrl: "" },
+                    { text: "Intensitatea curentului electric", correct: true, imageUrl: "" },
+                    { text: "Inducția magnetică", correct: false, imageUrl: "" },
+                    { text: "Fluxul magnetic", correct: false, imageUrl: "" },
+                    { text: "Sarcina", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: false,
+                hint: "În electromagnetism, intensitatea curentului electric (I) este singura mărime primară fundamentală, definită independent prin forța electrodinamică."
+            },
+            {
+                question: "Vectorul Poynting se definește ca",
+                imageUrl: "",
+                answers: [
+                    { text: "S = H̄ · Ē", correct: false, imageUrl: "" },
+                    { text: "S̄ = Ē + H̄", correct: false, imageUrl: "" },
+                    { text: "S̄ = Ē × H̄", correct: true, imageUrl: "" },
+                    { text: "S̄ = H̄ × Ē", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: false,
+                hint: "Vectorul Poynting, care descrie fluxul de energie electromagnetică, este definit ca S̄ = Ē × H̄ (produs vectorial)."
+            },
+            {
+                question: "Care este semnificația fizică a legii inducției electromagnetice?",
+                imageUrl: "",
+                answers: [
+                    { text: "Câmpul electric variabil în timp produce câmp magnetic", correct: false, imageUrl: "" },
+                    { text: "Câmpul magnetic produce câmp electric", correct: false, imageUrl: "" },
+                    { text: "Câmpul electric produce câmp magnetic", correct: false, imageUrl: "" },
+                    { text: "Câmpul magnetic variabil în timp produce câmp electric", correct: true, imageUrl: "" }
+                ],
+                multipleCorrect: false,
+                hint: "Legea inducției electromagnetice (Faraday) arată că un câmp magnetic variabil induce un câmp electric rotacional (∇×E = -∂B/∂t)."
+            },
+            {
+                question: "La ce fenomen se referă legea transferului de energie în conductoare?",
+                imageUrl: "",
+                answers: [
+                    { text: "fenomenul de conducție", correct: true, imageUrl: "" },
+                    { text: "fenomenul de magnetizare", correct: false, imageUrl: "" },
+                    { text: "fenomenul de polarizare", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: false,
+                hint: "Legea transferului de energie în conductoare descrie efectul Joule - conversia energiei electrice în căldură prin fenomenul de conducție."
+            },
+            {
+                question: "Care afirmaţii sunt adevărate referitor la mărimile locale E, D, B, H, ρ, J:",
+                imageUrl: "",
+                answers: [
+                    { text: "Cele vectoriale se referă la câmpul electromagnetic şi cea scalară la corpuri", correct: true, imageUrl: "" },
+                    { text: "Toate sunt vectoriale", correct: false, imageUrl: "" },
+                    { text: "Două sunt scalare", correct: false, imageUrl: "" },
+                    { text: "Toate se reprezintă grafic prin spectre", correct: false, imageUrl: "" },
+                    { text: "Toate se referă la câmp", correct: false, imageUrl: "" },
+                    { text: "Toate sunt scalare", correct: false, imageUrl: "" },
+                    { text: "Toate se referă la corpuri", correct: false, imageUrl: "" },
+                    { text: "Una este scalară şi două se referă la corpuri", correct: true, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Mărimile locale electromagnetice: E,D,B,H (vectori de câmp), ρ (scalar de corp), J (vector de corp)."
+            },
+            {
+                question: "Care este semnificația legii legăturii dintre J și E?",
+                imageUrl: "",
+                answers: [
+                    { text: "Un câmp magnetic variabil în timp produce câmp electric", correct: false, imageUrl: "" },
+                    { text: "Un corp care are câmp electric imprimat generează câmp electric", correct: true, imageUrl: "" },
+                    { text: "Un corp introdus într-un câmp electric își modifică starea, în el fiind posibilă apariția unui curent de conducție", correct: true, imageUrl: "" },
+                    { text: "Un corp polarizat permanent generează câmp electric", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: true,
+                hint: "Legea legăturii J = σE descrie: (1) curenții electrici în conductoare sub acțiunea câmpului electric, (2) sursele cu câmp electric imprimat."
+            },
+            {
+                question: "Un condensator liniar este un condensator pentru care",
+                imageUrl: "",
+                answers: [
+                    { text: "D̄ = εĒ + P̄ₚ", correct: false, imageUrl: "" },
+                    { text: "B̄ = μH̄", correct: false, imageUrl: "" },
+                    { text: "D̄ = εĒ", correct: true, imageUrl: "" },
+                    { text: "J̄ = σĒ", correct: false, imageUrl: "" }
+                ],
+                multipleCorrect: false,
+                hint: "Condensatorul liniar este definit prin relația liniară D = εE între inducția electrică și intensitatea câmpului electric."
+            }
+        ];
+
+        // Function to shuffle array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Function to shuffle answers and create mapping
+        function shuffleAnswers(question) {
+            const answers = [...question.answers];
+            const originalIndices = answers.map((_, index) => index);
+            const shuffledIndices = shuffleArray([...originalIndices]);
+            
+            // Create shuffled answers array
+            const shuffledAnswers = shuffledIndices.map(i => answers[i]);
+            
+            // Create mapping from original to shuffled indices
+            const mapping = {};
+            shuffledIndices.forEach((newIndex, originalIndex) => {
+                mapping[originalIndex] = newIndex;
+            });
+            
+            return {
+                shuffledAnswers,
+                mapping
+            };
+        }
+
+        // Prepare shuffled questions and answer mappings
+        function prepareShuffledQuestions() {
+            shuffledQuestions = shuffleArray([...originalQuestions]);
+            answerOrderMappings = [];
+            
+            shuffledQuestions.forEach(question => {
+                const { shuffledAnswers, mapping } = shuffleAnswers(question);
+                question.answers = shuffledAnswers;
+                answerOrderMappings.push(mapping);
+            });
+        }
+
+        // Start the quiz
+        function startQuiz() {
+            prepareShuffledQuestions();
+            quizStarted = true;
+            reviewMode = false;
+            startButton.classList.add("hide");
+            submitButton.classList.remove("hide");
+            reviewInfo.classList.add("hide");
+            currentQuestionIndex = 0;
+            score = 0;
+            incorrectQuestions = [];
+            incorrectQuestionIndices = [];
+            selectedAnswers = [];
+            reviewAttempts = {};
+            scoreElement.textContent = `Score: ${score}`;
+            updateProgressBar();
+            showQuestion();
+        }
+
+        // Show current question
+        function showQuestion() {
+            resetState();
+            const currentQuestion = reviewMode ? 
+                shuffledQuestions[incorrectQuestionIndices[currentQuestionIndex]] : 
+                shuffledQuestions[currentQuestionIndex];
+                
+            const questionNumber = currentQuestionIndex + 1;
+            const totalQuestions = reviewMode ? incorrectQuestionIndices.length : shuffledQuestions.length;
+            
+            questionCounter.textContent = `Question ${questionNumber} of ${totalQuestions}`;
+            questionElement.textContent = currentQuestion.question;
+            
+            // Clear previous image
+            questionImageContainer.innerHTML = '';
+            
+            // Add question image if it exists
+            if (currentQuestion.imageUrl) {
+                const img = document.createElement('img');
+                img.src = currentQuestion.imageUrl;
+                img.alt = 'Question image';
+                img.style.maxHeight = '200px';
+                questionImageContainer.appendChild(img);
+            }
+            
+            // Show hint if available
+            if (currentQuestion.hint) {
+                hintContainer.classList.remove("hide");
+                hintContent.textContent = currentQuestion.hint;
+                hintContent.style.display = "none";
+            } else {
+                hintContainer.classList.add("hide");
+            }
+            
+            // Create answer options
+            currentQuestion.answers.forEach((answer, index) => {
+                const answerOption = document.createElement("div");
+                answerOption.classList.add("answer-option");
+                answerOption.dataset.index = index;
+                
+                // Add answer image if it exists
+                if (answer.imageUrl) {
+                    const img = document.createElement('img');
+                    img.src = answer.imageUrl;
+                    img.alt = answer.text;
+                    answerOption.appendChild(img);
+                }
+                
+                // Add answer text
+                const text = document.createElement("span");
+                text.textContent = answer.text;
+                answerOption.appendChild(text);
+                
+                // Add click event
+                answerOption.addEventListener("click", () => selectAnswerOption(answerOption, currentQuestion.multipleCorrect));
+                
+                answerContainer.appendChild(answerOption);
+            });
+        }
+
+        // Select answer option
+        function selectAnswerOption(option, multiple) {
+            if (multiple) {
+                option.classList.toggle("selected");
+            } else {
+                // For single answer questions, deselect all others first
+                document.querySelectorAll('.answer-option').forEach(opt => {
+                    opt.classList.remove("selected");
+                });
+                option.classList.add("selected");
+            }
+        }
+
+        // Submit answer
+        function submitAnswer() {
+            const currentQuestionIndexToUse = reviewMode ? 
+                incorrectQuestionIndices[currentQuestionIndex] : 
+                currentQuestionIndex;
+                
+            const currentQuestion = shuffledQuestions[currentQuestionIndexToUse];
+            const selectedOptions = Array.from(document.querySelectorAll('.answer-option.selected'));
+            
+            if (selectedOptions.length === 0) {
+                alert("Please select at least one answer");
+                return;
+            }
+            
+            // Store selected answers for review (using original indices)
+            const selectedOriginalIndices = selectedOptions.map(opt => {
+                const shuffledIndex = parseInt(opt.dataset.index);
+                // Find the original index for this answer
+                const mapping = answerOrderMappings[currentQuestionIndexToUse];
+                for (const originalIndex in mapping) {
+                    if (mapping[originalIndex] === shuffledIndex) {
+                        return parseInt(originalIndex);
+                    }
+                }
+                return shuffledIndex; // fallback
+            });
+            
+            selectedAnswers[currentQuestionIndexToUse] = selectedOriginalIndices;
+            
+            // Check answers
+            let allCorrect = true;
+            let anySelected = false;
+            let correctCount = 0;
+            let selectedCorrectCount = 0;
+            
+            currentQuestion.answers.forEach((answer, shuffledIndex) => {
+                const option = document.querySelector(`.answer-option[data-index="${shuffledIndex}"]`);
+                const wasSelected = selectedOptions.includes(option);
+                
+                if (answer.correct) {
+                    correctCount++;
+                    if (wasSelected) selectedCorrectCount++;
+                    option.classList.add("correct");
+                    if (!wasSelected) allCorrect = false;
+                } else if (wasSelected) {
+                    option.classList.add("incorrect");
+                    allCorrect = false;
+                }
+                
+                if (wasSelected) anySelected = true;
+                option.classList.remove("selected");
+            });
+            
+            // For multiple correct answers, need to check if all correct were selected
+            if (currentQuestion.multipleCorrect && selectedCorrectCount < correctCount) {
+                allCorrect = false;
+            }
+            
+            // Disable all options after submission
+            document.querySelectorAll('.answer-option').forEach(opt => {
+                opt.style.pointerEvents = 'none';
+            });
+            
+            // Update score and feedback
+            if (allCorrect && anySelected) {
+                if (!reviewMode) {
+                    score++;
+                    scoreElement.textContent = `Score: ${score}`;
+                }
+                
+                feedbackElement.textContent = "Correct! Well done!";
+                feedbackElement.className = "feedback correct-feedback";
+                
+                // In review mode, remove from incorrect questions if answered correctly
+                if (reviewMode) {
+                    const indexInIncorrect = incorrectQuestionIndices.indexOf(currentQuestionIndexToUse);
+                    if (indexInIncorrect !== -1) {
+                        incorrectQuestionIndices.splice(indexInIncorrect, 1);
+                    }
+                }
+            } else {
+                feedbackElement.textContent = currentQuestion.multipleCorrect ? 
+                    "Incorrect. Select all that apply." : 
+                    "Incorrect. Try again.";
+                feedbackElement.className = "feedback incorrect-feedback";
+                
+                // Add to incorrect questions if not already there
+                if (!reviewMode && !incorrectQuestionIndices.includes(currentQuestionIndexToUse)) {
+                    incorrectQuestionIndices.push(currentQuestionIndexToUse);
+                }
+                
+                // Track attempts in review mode
+                if (reviewMode) {
+                    reviewAttempts[currentQuestionIndexToUse] = 
+                        (reviewAttempts[currentQuestionIndexToUse] || 0) + 1;
+                }
+            }
+            
+            feedbackElement.classList.remove("hide");
+            submitButton.classList.add("hide");
+            
+            if (reviewMode) {
+                tryAgainButton.classList.remove("hide");
+            } else {
+                nextButton.classList.remove("hide");
+            }
+            
+            // Show appropriate buttons at the end
+            if (!reviewMode && currentQuestionIndex === shuffledQuestions.length - 1) {
+                nextButton.classList.add("hide");
+                if (incorrectQuestionIndices.length > 0) {
+                    reviewButton.classList.remove("hide");
+                } else {
+                    restartButton.classList.remove("hide");
+                }
+            }
+        }
+
+        // Go to next question
+        function nextQuestion() {
+            currentQuestionIndex++;
+            updateProgressBar();
+            
+            if (currentQuestionIndex < shuffledQuestions.length) {
+                showQuestion();
+                submitButton.classList.remove("hide");
+                nextButton.classList.add("hide");
+                feedbackElement.classList.add("hide");
+            }
+        }
+
+        // Start review mode
+        function startReview() {
+            reviewMode = true;
+            currentQuestionIndex = 0;
+            reviewButton.classList.add("hide");
+            submitButton.classList.remove("hide");
+            reviewInfo.classList.remove("hide");
+            updateProgressBar();
+            showQuestion();
+        }
+
+        // Try again in review mode
+        function tryAgain() {
+            tryAgainButton.classList.add("hide");
+            submitButton.classList.remove("hide");
+            feedbackElement.classList.add("hide");
+            showQuestion();
+        }
+
+        // Restart the quiz
+        function restartQuiz() {
+            quizStarted = false;
+            reviewMode = false;
+            restartButton.classList.add("hide");
+            reviewButton.classList.add("hide");
+            tryAgainButton.classList.add("hide");
+            startButton.classList.remove("hide");
+            reviewInfo.classList.add("hide");
+            questionElement.textContent = "Press Start Quiz to begin";
+            feedbackElement.classList.add("hide");
+            resetState();
+            updateProgressBar();
+        }
+
+        // Reset the quiz state for next question
+        function resetState() {
+            answerContainer.innerHTML = '';
+            feedbackElement.classList.add("hide");
+            hintContainer.classList.add("hide");
+            hintContent.style.display = "none";
+            hintBtn.textContent = "Show Formula/Hint";
+        }
+
+        // Update progress bar
+        function updateProgressBar() {
+            const progress = reviewMode ? 
+                (currentQuestionIndex / incorrectQuestionIndices.length) * 100 :
+                (currentQuestionIndex / shuffledQuestions.length) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        // Initialize event listeners
+        startButton.addEventListener("click", startQuiz);
+        submitButton.addEventListener("click", submitAnswer);
+        nextButton.addEventListener("click", nextQuestion);
+        restartButton.addEventListener("click", restartQuiz);
+        reviewButton.addEventListener("click", startReview);
+        tryAgainButton.addEventListener("click", tryAgain);
+        hintBtn.addEventListener("click", function() {
+            if (hintContent.style.display === "none" || !hintContent.style.display) {
+                hintContent.style.display = "block";
+                hintBtn.textContent = "Hide Formula/Hint";
+            } else {
+                hintContent.style.display = "none";
+                hintBtn.textContent = "Show Formula/Hint";
+            }
+        });
+
+        // Initialize the quiz
+        resetState();
+    </script>
+</body>
+</html>
